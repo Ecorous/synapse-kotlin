@@ -1,6 +1,9 @@
 plugins {
+    application
+
     kotlin("jvm") version "1.9.21"
     kotlin("plugin.serialization") version "1.9.21"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 val ktorVersion: String by project
@@ -9,6 +12,7 @@ group = "org.example"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    google()
     mavenCentral()
     maven {
         name = "Sonatype Snapshots (Legacy)"
@@ -19,6 +23,11 @@ repositories {
         name = "Sonatype Snapshots"
         url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
+}
+
+application {
+    // This is deprecated, but the Shadow plugin requires it
+    mainClass = "org.ecorous.synapse.MainKt"
 }
 
 dependencies {
@@ -35,4 +44,13 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "org.ecorous.synapse.MainKt"
+        )
+    }
 }
