@@ -91,15 +91,10 @@ suspend fun finalPrompt(author: User, channel: MessageChannelBehavior, guild: Gu
 
     val systemPrompt = client.get("https://raw.githubusercontent.com/Ecorous/synapse-kotlin/main/synapse.system.txt").body<String>()
 
-    return systemPrompt + """
-    ${if (guild != null ) "The server you are in is called ${guild.name}" else "You are currently in a private DM" }
-    You can refer to the channel you are in as ${channel.mention}.
-    The author of this message is called ${author.globalName}.
-    
-    You are never to ping users, or use any form of mention.
-
-    Below is the conversation history:
-    """.trimIndent() + channel.history().parsable()
+    return systemPrompt.replace("{guildLine}", if (guild != null ) "The server you are in is called ${guild.name}" else "You are currently in a private DM")
+        .replace("{channelMention}", channel.mention)
+        .replace("{authorName}", author.username)
+        .replace("{history}", channel.history().parsable())
 }
 
 fun MessageChannelBehavior.history(): MutableList<HistoryItem> {
