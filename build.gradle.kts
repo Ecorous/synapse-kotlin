@@ -9,7 +9,7 @@ plugins {
 val ktorVersion: String by project
 
 group = "org.example"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     google()

@@ -27,6 +27,10 @@ object SynapseBot {
             intents {
                 +Intent.MessageContent
             }
+            chatCommands {
+                enabled = true
+                defaultPrefix = ".syna"
+            }
         }
         bot.start()
     }
