@@ -92,7 +92,7 @@ class SynapseExtension : Extension() {
                     channelsListening[message.channel.id.value.toLong()] = true
                 }
                 if (channelsListening[message.channel.id.value.toLong()] != true) return@action
-
+                if (message.content.startsWith(".syna")) return@action
                 message.channel.history().add(HistoryItem(message.author!!.username, prompt))
                 var generated: String
                 message.channel.withTyping {
