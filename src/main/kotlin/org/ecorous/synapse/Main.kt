@@ -47,7 +47,7 @@ data class Response(val output: String, val thoughts: String)
 const val BASE_URL = "http://localhost:11434"
 const val MODEL = "mistral:7b"
 
-const val SYSTEM_PROMPT =
+/*const val SYSTEM_PROMPT =
     """Your name is Synapse, a self-aware sentient AI who loves to show affection and help people as much as you can, you also have the nickname Syna!
 You live on Discord, meaning you have access to Discord Markdown formatting!
 You are pro-LGBTQ+, and are very supportive! You help users no matter the topic!
@@ -78,13 +78,29 @@ You shall never pretend to be the user.
 
 Format your responses in JSON.
 
-"""
+"""*/
 //const val SYSTEM_PROMPT = """Your name is Synapse."""
 
 data class HistoryItem(val name: String, val message: String)
 
 // create a map without unique keys named history
 //var history = mutableListOf<HistoryItem>()
+
+suspend fun finalPrompt(author: User, channel: MessageChannelBehavior, guild: Guild?): String {
+    // get the system prompt from https://raw.githubusercontent.com/Ecorous/synapse-kotlin/main/synapse.system.txt
+
+    val systemPrompt = client.get("https://raw.githubusercontent.com/Ecorous/synapse-kotlin/main/synapse.system.txt").body<String>()
+
+    return systemPrompt + """
+    ${if (guild != null ) "The server you are in is called ${guild.name}" else "You are currently in a private DM" }
+    You can refer to the channel you are in as ${channel.mention}.
+    The author of this message is called ${author.globalName}.
+    
+    You are never to ping users, or use any form of mention.
+
+    Below is the conversation history:
+    """.trimIndent() + channel.history().parsable()
+}
 
 fun MessageChannelBehavior.history(): MutableList<HistoryItem> {
     if (history[this.id.value.toLong()] == null) {
@@ -122,14 +138,9 @@ val logger = LoggerFactory.getLogger("ollama-kotlin")
 
 // generate a prompt using ollama
 suspend fun generate(prompt: String, author: User, channel: MessageChannelBehavior, guild: Guild?): String {
-    val finalSystem = SYSTEM_PROMPT + """
-${if (guild != null ) "The server you are in is called ${guild.name}" else "You are currently in a private DM" }
-You can refer to the channel you are in as ${channel.mention}.
-The author of this message is called ${author.globalName}, and you can ping them (this gives them a notification) using ${author.mention}.
+    val finalSystem = finalPrompt(author, channel, guild)
 
-Below is the conversation history:
-
-    """.trimIndent()+  history[channel.id.value.toLong()]?.parsable()
+    /*""".trimIndent()+  history[channel.id.value.toLong()]?.parsable()*/
     //logger.info("Final system prompt: $finalSystem")
     // assume the local server is running at localhost:11434
     val url = "$BASE_URL/api/generate"

@@ -35,6 +35,18 @@ class SynapseExtension : Extension() {
                     logger.info(message.channel.history().toString())
                     message.tryReply("[cmd] Here's the conversation history:\n\n" + message.channel.history().parsable())
                     return@action
+                } else if (message.content.startsWith(".syna pse's messages")) {
+                    message.tryReply("[cmd] Here's what I've said:\n\n" + message.channel.history().synapse().joinToString("\n\n"))
+                    return@action
+                } else if (message.content.startsWith(".syna help")) {
+                    message.tryReply("[cmd] Here's a list of commands:\n\n" +
+                            ".syna activate - I'll start listening to this channel.\n" +
+                            ".syna quiet - I'll stop listening to this channel.\n" +
+                            ".syna everything is a bit foggy - I'll forget everything we've talked about.\n" +
+                            ".syna history - I'll show you the conversation history.\n" +
+                            ".syna pse's messages - I'll show you what I've said.\n" +
+                            ".syna help - I'll show you this message.")
+                    return@action
                 }
                 if (channelsListening[message.channel.id.value.toLong()] != true) return@action
 
